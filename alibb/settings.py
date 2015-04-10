@@ -17,12 +17,11 @@ NEWSPIDER_MODULE = 'alibb.spiders'
 #USER_AGENT = 'alibb (+http://www.yourdomain.com)'
 
 ITEM_PIPELINES = {
-    'alibb.pipelines.AlibbJsonPipeline': 1,
-    "alibb.pipelines.AlibbImagesPipeline": 2,
-
+    'alibb.pipelines.AlibbImagesPipeline': 1,
+    'alibb.pipelines.AlibbJsonPipeline': 2,
 }
 
-IMAGES_STORE = 'E:\\kupan\\code\\alibb\\alibb\\img'
+IMAGES_STORE = 'E:\\alibb\\img'
 
 IMAGES_MIN_HEIGHT = 300
 IMAGES_MIN_WIDTH = 300

@@ -21,5 +21,4 @@ class AlibbItem(Item):
     #img
     image_urls=Field()
     image_paths=Field()
-    image_local_paths=Field()
     images =Field()

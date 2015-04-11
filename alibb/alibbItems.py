@@ -17,6 +17,7 @@ class AlibbItem(Item):
     profile_img = Field()
     price=Field()
 
+    detail_data=Field()
     detail_info=Field()
 
     #img

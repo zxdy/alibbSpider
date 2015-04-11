@@ -2,6 +2,8 @@
 #-*- coding: utf-8 -*-
 #__author__ = 'Ario'
 import hashlib
+import json
+import re
 import sys
 
 import scrapy
@@ -65,11 +67,22 @@ class alibbSpider(scrapy.Spider):
         goods_loader.add_xpath('title', self._x_query['title'].encode('utf-8'))
         goods_loader.add_xpath('price',self._x_query['price'])
 
-        detail_info_list=response.xpath(self._x_query['detail_info']).extract()
 
+        # detail data
+        iDetailDataPattern=re.compile("iDetailData.*};",re.DOTALL)
+        detail_data_list=response.xpath('//script').re(iDetailDataPattern)
+        detail_data=detail_data_list[0].replace("iDetailData = {","{")
+        detail_data=detail_data.replace("};","}")
+        detail_data=detail_data.replace("\t|\n|\\","")
+        detail_data_json=json.loads(detail_data)
+        goods_loader.add_value('detail_data',detail_data_json)
+
+        # detail information
+        detail_info_list=response.xpath(self._x_query['detail_info']).extract()
         goods_loader.add_value('detail_info', dict(zip(detail_info_list[::2],detail_info_list[1::2])))
         print goods_loader.load_item()['url']
 
+        # big img
         for link in response.xpath('//*[@id="desc-lazyload-container"]/@data-tfs-url').extract():
             yield Request(url = link, meta={'item': goods_loader},callback=self.parse_content_down)
 

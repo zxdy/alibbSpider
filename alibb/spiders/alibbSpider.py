@@ -1,6 +1,7 @@
 # !/usr/bin/env python
 #-*- coding: utf-8 -*-
 #__author__ = 'Ario'
+import hashlib
 import sys
 
 import scrapy
@@ -13,7 +14,7 @@ from scrapy.contrib.linkextractors import LinkExtractor
 from alibb.alibbItems import AlibbItem
 
 class alibbSpider(scrapy.Spider):
-    name = "alibb"
+    name = "jinlp1688"
     allowed_domains = ["1688.com","taobaocdn.com"]
     start_urls = [
         "http://jinlp1688.1688.com/page/offerlist.htm"
@@ -30,7 +31,8 @@ class alibbSpider(scrapy.Spider):
     _x_query = {
         'title':    '//*[@id="mod-detail-title"]/h1/text()',
         'detail_info':'//*[@id="mod-detail-attributes"]/div[1]/table/tbody/tr/td/text()',
-        'cdn_img':'//img/@src'
+        'cdn_img':'//img/@src',
+        'price':'//span[re:test(@class,"value price-length-\d$")]/text()'
     }
 
 
@@ -48,7 +50,7 @@ class alibbSpider(scrapy.Spider):
 
     def parse_content_down(self,response):
 
-        img_urls=response.xpath('//img/@src').extract()
+        img_urls=response.xpath(self._x_query['cdn_img']).re('.*jpg.*|.*jpeg.*|.*png.*')
 
         goods_loader = response.meta['item']
         goods_loader.add_value('image_urls',img_urls)
@@ -59,8 +61,9 @@ class alibbSpider(scrapy.Spider):
         goods_loader = ItemLoader(item=AlibbItem(), response = response)
         url = str(response.url)
         goods_loader.add_value('url', url)
-        goods_loader.add_value('url_hash',abs(hash(url)))
+        goods_loader.add_value('url_hash',hashlib.sha1(url).hexdigest())
         goods_loader.add_xpath('title', self._x_query['title'].encode('utf-8'))
+        goods_loader.add_xpath('price',self._x_query['price'])
 
         detail_info_list=response.xpath(self._x_query['detail_info']).extract()
 

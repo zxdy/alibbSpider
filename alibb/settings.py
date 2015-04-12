@@ -17,7 +17,7 @@ NEWSPIDER_MODULE = 'alibb.spiders'
 #USER_AGENT = 'alibb (+http://www.yourdomain.com)'
 
 ITEM_PIPELINES = {
-    'alibb.pipelines.AlibbImagesPipeline': 1,
+    # 'alibb.pipelines.AlibbImagesPipeline': 1,
     'alibb.pipelines.AlibbJsonPipeline': 2,
 }
 

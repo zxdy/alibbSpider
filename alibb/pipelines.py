@@ -42,7 +42,7 @@ class AlibbImagesPipeline(ImagesPipeline):
             item['is_profile']="true"
             yield scrapy.Request(profile_image_url,meta=item)
 
-        for image_url in item['image_urls']:
+        for image_url in item['photos']:
             item['is_profile']="false"
             yield scrapy.Request(image_url,meta=item)
 

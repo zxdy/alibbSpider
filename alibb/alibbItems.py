@@ -13,15 +13,16 @@ class AlibbItem(Item):
     # name = scrapy.Field()
     url = Field()
     url_hash=Field()
-    title = Field()
-    profile_img = Field()
+    name = Field()
+    boothes = Field()
     is_profile = Field()
     price=Field()
-
+    attributes=Field()
+    properties=Field()
     detail_data=Field()
-    detail_info=Field()
+    parameters=Field()
 
     #img
-    image_urls=Field()
+    photos=Field()
     image_paths=Field()
     images =Field()

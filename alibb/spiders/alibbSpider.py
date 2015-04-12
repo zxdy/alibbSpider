@@ -33,8 +33,7 @@ class alibbSpider(scrapy.Spider):
     _x_query = {
         'title':    '//*[@id="mod-detail-title"]/h1/text()',
         'detail_info':'//*[@id="mod-detail-attributes"]/div[1]/table/tbody/tr/td/text()',
-        'cdn_img':'//img/@src',
-        'price':'//span[re:test(@class,"value price-length-\d$")]/text()'
+        'cdn_img':'//img[contains(@src,"aliimg")]/@src',
 
     }
 
@@ -56,7 +55,7 @@ class alibbSpider(scrapy.Spider):
         img_urls=response.xpath(self._x_query['cdn_img']).re('.*jpg.*|.*jpeg.*|.*png.*')
 
         goods_loader = response.meta['item']
-        goods_loader.add_value('image_urls',img_urls)
+        goods_loader.add_value('photos',img_urls)
         return goods_loader.load_item()
 
     def parse_content(self, response):
@@ -65,9 +64,7 @@ class alibbSpider(scrapy.Spider):
         url = str(response.url)
         goods_loader.add_value('url', url)
         goods_loader.add_value('url_hash',hashlib.sha1(url).hexdigest())
-        goods_loader.add_xpath('title', self._x_query['title'].encode('utf-8'))
-        goods_loader.add_xpath('price',self._x_query['price'])
-
+        goods_loader.add_xpath('name', self._x_query['title'].encode('utf-8'))
 
         # detail data
         iDetailDataPattern=re.compile("iDetailData.*};",re.DOTALL)
@@ -76,11 +73,24 @@ class alibbSpider(scrapy.Spider):
         detail_data=detail_data.replace("};","}")
         detail_data=detail_data.replace("\t|\n|\\","")
         detail_data_json=json.loads(detail_data)
-        goods_loader.add_value('detail_data',detail_data_json)
+        # goods_loader.add_value('detail_data',detail_data_json)
+
+        properties=detail_data_json['sku']['skuMap'].keys()
+        goods_loader.add_value('properties',[property.replace(">",",") for property in properties])
+
+        for attribute in detail_data_json['sku']['skuProps']:
+            attributes={}
+            options=[value['name'] for value in attribute['value']]
+            attributes['name']=attribute['prop']
+            attributes['options']=options
+            goods_loader.add_value('attributes',attributes)
+
+        price=response.xpath('//span[re:test(@class,"value price-length-\d$")]/text()').extract()
+        goods_loader.add_value('price',price[0] if len(price)>0 else detail_data_json['sku']['price'])
 
         # detail information
         detail_info_list=response.xpath(self._x_query['detail_info']).extract()
-        goods_loader.add_value('detail_info', dict(zip(detail_info_list[::2],detail_info_list[1::2])))
+        goods_loader.add_value('parameters', dict(zip(detail_info_list[::2],detail_info_list[1::2])))
         print goods_loader.load_item()['url']
 
 
@@ -90,7 +100,7 @@ class alibbSpider(scrapy.Spider):
 
         for urls in profile_img_urls:
             profile_img_url=urls.replace("original\":\"http","http")
-            goods_loader.add_value("profile_img",profile_img_url)
+            goods_loader.add_value("boothes",profile_img_url)
 
 
         # big img

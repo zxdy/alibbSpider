@@ -19,7 +19,7 @@ class alibbSpider(scrapy.Spider):
     name = "jinlp1688"
     allowed_domains = ["1688.com","taobaocdn.com"]
     start_urls = [
-        "http://jinlp1688.1688.com/page/offerlist.htm"
+        "http://chuanqichaye.1688.com/page/offerlist.htm"
     ]
 
 
@@ -32,7 +32,7 @@ class alibbSpider(scrapy.Spider):
 
     _x_query = {
         'title':    '//*[@id="mod-detail-title"]/h1/text()',
-        'detail_info':'//*[@id="mod-detail-attributes"]/div[1]/table/tbody/tr/td/text()',
+        'detail_info':'//*[@id="mod-detail-attributes"]/div/table/tbody/tr/td/text()',
         'cdn_img':'//img[contains(@src,"aliimg")]/@src',
 
     }
@@ -72,18 +72,19 @@ class alibbSpider(scrapy.Spider):
         detail_data=detail_data_list[0].replace("iDetailData = {","{")
         detail_data=detail_data.replace("};","}")
         detail_data=detail_data.replace("\t|\n|\\","")
+
+
         detail_data_json=json.loads(detail_data)
-        # goods_loader.add_value('detail_data',detail_data_json)
+        if len(detail_data_json)!=0:
+            properties=detail_data_json['sku']['skuMap'].keys()
+            goods_loader.add_value('properties',[property.replace(">",",") for property in properties])
 
-        properties=detail_data_json['sku']['skuMap'].keys()
-        goods_loader.add_value('properties',[property.replace(">",",") for property in properties])
-
-        for attribute in detail_data_json['sku']['skuProps']:
-            attributes={}
-            options=[value['name'] for value in attribute['value']]
-            attributes['name']=attribute['prop']
-            attributes['options']=options
-            goods_loader.add_value('attributes',attributes)
+            for attribute in detail_data_json['sku']['skuProps']:
+                attributes={}
+                options=[value['name'] for value in attribute['value']]
+                attributes['name']=attribute['prop']
+                attributes['options']=options
+                goods_loader.add_value('attributes',attributes)
 
         price=response.xpath('//span[re:test(@class,"value price-length-\d$")]/text()').extract()
         goods_loader.add_value('price',price[0] if len(price)>0 else detail_data_json['sku']['price'])

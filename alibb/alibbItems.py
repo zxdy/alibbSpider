@@ -15,6 +15,7 @@ class AlibbItem(Item):
     url_hash=Field()
     title = Field()
     profile_img = Field()
+    is_profile = Field()
     price=Field()
 
     detail_data=Field()

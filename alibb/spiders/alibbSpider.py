@@ -35,6 +35,7 @@ class alibbSpider(scrapy.Spider):
         'detail_info':'//*[@id="mod-detail-attributes"]/div[1]/table/tbody/tr/td/text()',
         'cdn_img':'//img/@src',
         'price':'//span[re:test(@class,"value price-length-\d$")]/text()'
+
     }
 
 
@@ -81,6 +82,16 @@ class alibbSpider(scrapy.Spider):
         detail_info_list=response.xpath(self._x_query['detail_info']).extract()
         goods_loader.add_value('detail_info', dict(zip(detail_info_list[::2],detail_info_list[1::2])))
         print goods_loader.load_item()['url']
+
+
+
+        # profile img
+        profile_img_urls=response.xpath('//li/@data-imgs').re("original.*jpg")
+
+        for urls in profile_img_urls:
+            profile_img_url=urls.replace("original\":\"http","http")
+            goods_loader.add_value("profile_img",profile_img_url)
+
 
         # big img
         for link in response.xpath('//*[@id="desc-lazyload-container"]/@data-tfs-url').extract():

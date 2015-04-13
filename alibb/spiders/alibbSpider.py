@@ -85,6 +85,8 @@ class alibbSpider(scrapy.Spider):
                 attributes['name']=attribute['prop']
                 attributes['options']=options
                 goods_loader.add_value('attributes',attributes)
+        else:
+            goods_loader.add_value('attributes',"")
 
         price=response.xpath('//span[re:test(@class,"value price-length-\d$")]/text()').extract()
         goods_loader.add_value('price',price[0] if len(price)>0 else detail_data_json['sku']['price'])

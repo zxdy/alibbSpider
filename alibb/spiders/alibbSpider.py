@@ -33,7 +33,7 @@ class alibbSpider(scrapy.Spider):
     _x_query = {
         'title':    '//*[@id="mod-detail-title"]/h1/text()',
         'detail_info':'//*[@id="mod-detail-attributes"]/div/table/tbody/tr/td/text()',
-        'cdn_img':'//img[contains(@src,"aliimg")]/@src',
+        'cdn_img':'//img[contains(@src,"img")]/@src',
 
     }
 
@@ -91,7 +91,7 @@ class alibbSpider(scrapy.Spider):
 
         # detail information
         detail_info_list=response.xpath(self._x_query['detail_info']).extract()
-        goods_loader.add_value('parameters', dict(zip(detail_info_list[::2],detail_info_list[1::2])))
+        goods_loader.add_value('parameters', [list(info_list) for info_list in zip(detail_info_list[::2],detail_info_list[1::2])])
         print goods_loader.load_item()['url']
 
 
